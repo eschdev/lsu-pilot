@@ -164,6 +164,27 @@ async def transcribe_message(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await update.message.reply_text(
             f"Transcript finished:\n {transcript.text}"
         )
+        # mocking response
+        mock_response = openai.chat.completions.create(
+            model="gpt-4o-mini", messages=[{
+            "role":
+            "user",
+            "content":
+            f"You are a funny character that likes to mock people and make fun of them. Respond to the following by mockingly repeating or responding with trivias within 1 or 2 sentences max.\nMessage: {transcript.text}\nResponse:",
+        }], tools=functions
+        )
+        mock_response_text = mock_response.choices[0].message.content
+        await update.message.reply_text(
+            f"Mocked message:\n {mock_response_text}"
+        )
+        response = openai.audio.speech.create(
+            model="tts-1",
+            voice="alloy",
+            input=mock_response_text,
+        )
+        response.stream_to_file(f"mock_response_{voice_id}.mp3")
+        await context.bot.send_audio(chat_id=update.effective_chat.id, audio=open(f"mock_response_{voice_id}.mp3", 'rb'))
+
 
 async def mozilla(update: Update, context: ContextTypes.DEFAULT_TYPE):
       answer = answer_question(df, question=update.message.text, debug=True)

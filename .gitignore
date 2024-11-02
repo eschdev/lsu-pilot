@@ -1,5 +1,6 @@
 .env
 *.ogg
+*.mp3
 
 */__pycache__
 
